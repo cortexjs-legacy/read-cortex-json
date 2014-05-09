@@ -13,7 +13,7 @@
   "keywords": [
     "read-cortex-json"
   ],
-  "engines": { 
+  "engines": {
     "node": ">=0.8.0"
   },
   "author": "kael",
@@ -22,7 +22,15 @@
     "url": "https://github.com/kaelzhang/node-read-cortex-json/issues"
   },
   "devDependencies": {
-    "mocha": "~1.13.0",
-    "chai": "~1.8.0"
+    "mocha": "^1.18.2",
+    "chai": "^1.9.1",
+    "fs-sync": "^0.2.4"
+  },
+  "dependencies": {
+    "async": "^0.8.0",
+    "fs-extra": "^0.8.1",
+    "fs-expand": "^0.1.2",
+    "read-package-json": "^1.1.9",
+    "mkdirp": "^0.5.0"
   }
 }
