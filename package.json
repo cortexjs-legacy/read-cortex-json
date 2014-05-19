@@ -8,10 +8,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:kaelzhang/node-read-cortex-json.git"
+    "url": "git@github.com:cortexjs/read-cortex-json.git"
   },
   "keywords": [
-    "read-cortex-json"
+    "read",
+    "cortex",
+    "cortex-json",
+    "package.json",
+    "cortex.json",
+    "package",
+    "validate",
+    "readme"
   ],
   "engines": {
     "node": ">=0.8.0"
@@ -19,7 +26,7 @@
   "author": "kael",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kaelzhang/node-read-cortex-json/issues"
+    "url": "https://github.com/cortexjs/read-cortex-json/issues"
   },
   "devDependencies": {
     "mocha": "^1.18.2",
