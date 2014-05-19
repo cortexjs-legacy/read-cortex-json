@@ -319,7 +319,7 @@ exports.get_cached_document = function(options, callback) {
 
       var json;
       try {
-        json = modified.parse(content);
+        json = JSON.parse(content);
       } catch (e) {
         // Legacy with modified < 2.0.0.
         // The data structure of document.cache is changed, so remove old caches
