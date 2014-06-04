@@ -125,7 +125,13 @@ exports.get_original_package = function(cwd, callback, use_inherits) {
 
 
 exports._filter_package_fields = function(json) {
-  ['dependencies', 'asyncDependencies', 'devDependencies', 'scripts'].forEach(function(key) {
+  [
+    'dependencies', 
+    'asyncDependencies', 
+    'devDependencies', 
+    'engines',
+    'scripts'
+  ].forEach(function(key) {
     if (!json.hasOwnProperty(key)) {
       json[key] = {};
     }

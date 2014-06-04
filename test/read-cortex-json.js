@@ -88,6 +88,7 @@ describe("helper.get_original_package(cwd)", function(){
             expect(helper.scripts.prebuild).to.equal(undefined);
             expect(helper.dependencies.baar).to.equal(undefined);
             expect(helper.dependencies.bar).not.to.equal(undefined);
+            expect(helper.engines.node).to.equal(undefined);
             done();
         });
     });

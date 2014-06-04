@@ -18,7 +18,6 @@
     "bar": "~2.0.0"
   },
   "engines": {
-    "node": ">=0.8.17"
   },
   "bin": {
     "cortex": "bin/cortex-cli.js"
