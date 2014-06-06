@@ -238,7 +238,7 @@ exports.package_root = function(cwd, callback) {
       }
 
       cwd = node_path.dirname(cwd);
-      return exports.repo_root(cwd, callback);
+      return exports.package_root(cwd, callback);
     });
   });
 };
