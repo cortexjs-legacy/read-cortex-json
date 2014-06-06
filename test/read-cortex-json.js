@@ -3,9 +3,10 @@
 var expect = require('chai').expect;
 var helper = require('../');
 
-
 var tmp = require('./lib/tmp');
 var fs = require('fs-sync');
+var temp = require('tmp');
+var _ = require('underscore');
 
 var node_path = require('path');
 
@@ -16,7 +17,14 @@ var only_package = make(['package.json']);
 var hybrid = make(['package.json', 'cortex.json']);
 var non_existing = make([]);
 
+function fix () {
+  var base = fixtures;
+  _.toArray(arguments).forEach(function (p) {
+    base = node_path.join(base, p);
+  });
 
+  return base;
+}
 
 function make(files) {
   var dir = tmp.make(root);
@@ -161,7 +169,43 @@ describe("helper.save(cwd, json)", function() {
 
 
 describe("helper.package_root()", function() {
-  it("found", function(done) {
+  it("current", function(done) {
+    var dir = fix('a');
+    helper.package_root(dir, function (found) {
+      expect(found).to.equal(dir);
+      done();
+    })
+  });
 
+  it("found cortex.json", function(done){
+    var dir = fix('a', 'a');
+    var expected = fix('a');
+    helper.package_root(dir, function (found) {
+      expect(found).to.equal(expected);
+      done();
+    })
+  });
+
+  it("found package.json", function(done){
+    var dir = fix('b');
+    helper.package_root(dir, function (found) {
+      expect(found).to.equal(dir);
+      done();
+    })
+  });
+
+  it("not found", function(done){
+    temp.dir(function (err, dir) {
+      if (err) {
+        console.error('fail to create tmp dir, skip testing');
+        return done();
+      }
+
+      helper.package_root(dir, function (found) {
+        expect(found).to.equal(null);
+        done();
+      })
+    })
   });
 });
+

@@ -32,7 +32,9 @@
   "devDependencies": {
     "mocha": "^1.18.2",
     "chai": "^1.9.1",
-    "fs-sync": "^0.2.4"
+    "fs-sync": "^0.2.4",
+    "tmp": "0.0.23",
+    "underscore": "~1.6.0"
   },
   "dependencies": {
     "async": "^0.8.0",
