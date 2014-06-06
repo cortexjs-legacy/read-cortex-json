@@ -12,154 +12,156 @@ var node_path = require('path');
 var root = node_path.resolve('test', 'playground', 'tmp');
 var fixtures = node_path.resolve('test', 'fixtures');
 
-var only_package    = make(['package.json']);
-var hybrid          = make(['package.json', 'cortex.json']);
-var non_existing    = make([]);
+var only_package = make(['package.json']);
+var hybrid = make(['package.json', 'cortex.json']);
+var non_existing = make([]);
 
 
 
+function make(files) {
+  var dir = tmp.make(root);
 
-function make (files) {
-    var dir = tmp.make(root);
+  files.forEach(function(file) {
+    copy(file, fixtures, dir);
+  });
 
-    files.forEach(function (file) {
-        copy(file, fixtures, dir);
-    });
-
-    return dir;
+  return dir;
 }
 
-function copy (file, from, to) {
-    fs.copy( node_path.join(from, file), node_path.join(to, file), {
-        force: true
-    });
+function copy(file, from, to) {
+  fs.copy(node_path.join(from, file), node_path.join(to, file), {
+    force: true
+  });
 }
 
 
-describe("helper._get_package_file(cwd)", function(){
-    it("helper._is_cortex_json", function(){
-        expect(helper._is_cortex_json( '/xxx/xxx/xx/cortex.json' )).to.equal(true);
-        expect(helper._is_cortex_json( '/xxx/xxx/xx/package.json' )).to.equal(false);
-    });
+describe("helper._get_package_file(cwd)", function() {
+  it("helper._is_cortex_json", function() {
+    expect(helper._is_cortex_json('/xxx/xxx/xx/cortex.json')).to.equal(true);
+    expect(helper._is_cortex_json('/xxx/xxx/xx/package.json')).to.equal(false);
+  });
 
-    it("returns package.json if cortex.json is not existed", function(done){
-        helper._get_package_file(only_package, function (err, file) {
-            expect(err).to.equal(null);
-            expect( helper._is_cortex_json(file) ).to.equal(false);
-            
-            done();
-        });
-    });
+  it("returns package.json if cortex.json is not existed", function(done) {
+    helper._get_package_file(only_package, function(err, file) {
+      expect(err).to.equal(null);
+      expect(helper._is_cortex_json(file)).to.equal(false);
 
-    it("returns cortex.json if existed", function(done){
-        helper._get_package_file(hybrid, function (err, file) {
-            expect(err).to.equal(null);
-            expect(helper._is_cortex_json(file)).to.equal(true);
-            done();
-        });
+      done();
     });
+  });
 
-    it("throws error if neither is existed, strict=true", function(done){
-        helper._get_package_file(non_existing, function (err, file) {
-            expect(err).not.to.equal(null);
-            done();
-        }, true);
+  it("returns cortex.json if existed", function(done) {
+    helper._get_package_file(hybrid, function(err, file) {
+      expect(err).to.equal(null);
+      expect(helper._is_cortex_json(file)).to.equal(true);
+      done();
     });
+  });
 
-    it("won't throw error if neither is existed, strict=", function(done){
-        helper._get_package_file(non_existing, function (err, file) {
-            expect(err).to.equal(null);
-            done();
-        });
+  it("throws error if neither is existed, strict=true", function(done) {
+    helper._get_package_file(non_existing, function(err, file) {
+      expect(err).not.to.equal(null);
+      done();
+    }, true);
+  });
+
+  it("won't throw error if neither is existed, strict=", function(done) {
+    helper._get_package_file(non_existing, function(err, file) {
+      expect(err).to.equal(null);
+      done();
     });
+  });
 });
 
 
-describe("helper.read(cwd)", function(){
-    it("merges normal fields", function(done){
-        helper.read(only_package, function (err, helper) {
-            expect(helper.name).to.equal('foo');
-            done();
-        });
+describe("helper.read(cwd)", function() {
+  it("merges normal fields", function(done) {
+    helper.read(only_package, function(err, helper) {
+      expect(helper.name).to.equal('foo');
+      done();
     });
+  });
 
-    it("prevents merging special fields", function(done){
-        helper.read(only_package, function (err, helper) {
-            expect(helper.scripts.prebuild).to.equal(undefined);
-            expect(helper.dependencies.baar).to.equal(undefined);
-            expect(helper.dependencies.bar).not.to.equal(undefined);
-            expect(helper.engines.node).to.equal(undefined);
-            done();
-        });
+  it("prevents merging special fields", function(done) {
+    helper.read(only_package, function(err, helper) {
+      expect(helper.scripts.prebuild).to.equal(undefined);
+      expect(helper.dependencies.baar).to.equal(undefined);
+      expect(helper.dependencies.bar).not.to.equal(undefined);
+      expect(helper.engines.node).to.equal(undefined);
+      done();
     });
+  });
 
-    it("use_inherits=true", function(done){
-        helper.read(only_package, function (err, helper) {
-            expect(helper.hasOwnProperty('name')).to.equal(false);
-            done();
-        }, true);
-    });
+  it("use_inherits=true", function(done) {
+    helper.read(only_package, function(err, helper) {
+      expect(helper.hasOwnProperty('name')).to.equal(false);
+      done();
+    }, true);
+  });
 });
 
 
-describe("helper.save(cwd, json)", function(){
-    var new_version = '10.3.4';
+describe("helper.save(cwd, json)", function() {
+  var new_version = '10.3.4';
 
-    it("could save to cortex.json", function(done){
-        var dir = make(['cortex.json']);
+  it("could save to cortex.json", function(done) {
+    var dir = make(['cortex.json']);
 
-        helper.read(dir, function (err, pkg) {
-            pkg.version = new_version;
+    helper.read(dir, function(err, pkg) {
+      pkg.version = new_version;
 
-            helper.save(dir, pkg, function (err) {
-                expect(err).to.equal(null);
-                var json = fs.readJSON( node_path.join(dir, 'cortex.json') );
+      helper.save(dir, pkg, function(err) {
+        expect(err).to.equal(null);
+        var json = fs.readJSON(node_path.join(dir, 'cortex.json'));
 
-                expect(json.version).to.equal(new_version);
-                done();
-            });
-        });
+        expect(json.version).to.equal(new_version);
+        done();
+      });
     });
+  });
 
-    it("will save to package.json if cortex.json is not existed", function(done){
-        var dir = make(['package.json']);
+  it("will save to package.json if cortex.json is not existed", function(done) {
+    var dir = make(['package.json']);
 
-        helper.read(dir, function (err, pkg) {
-            pkg.version = new_version;
+    helper.read(dir, function(err, pkg) {
+      pkg.version = new_version;
 
-            helper.save(dir, pkg, function (err) {
-                expect(err).to.equal(null);
-                var json = fs.readJSON( node_path.join(dir, 'package.json') );
+      helper.save(dir, pkg, function(err) {
+        expect(err).to.equal(null);
+        var json = fs.readJSON(node_path.join(dir, 'package.json'));
 
-                expect(json.cortex.version).to.equal(new_version);
+        expect(json.cortex.version).to.equal(new_version);
 
-                // should not affect pkg.version
-                expect(json.version).not.to.equal(new_version);
-                done();
-            });
-        }, true);
+        // should not affect pkg.version
+        expect(json.version).not.to.equal(new_version);
+        done();
+      });
+    }, true);
+  });
+
+  it("save to cortex.json if both exists", function(done) {
+    var dir = make(['package.json', 'cortex.json']);
+
+    helper.read(dir, function(err, pkg) {
+      pkg.version = new_version;
+
+      helper.save(dir, pkg, function(err) {
+        expect(err).to.equal(null);
+        var json = fs.readJSON(node_path.join(dir, 'cortex.json'));
+
+        // should not affect pkg.version
+        expect(json.version).to.equal(new_version);
+        expect('cortex' in json).to.equal(false);
+
+        done();
+      });
     });
-
-    it("save to cortex.json if both exists", function(done){
-        var dir = make(['package.json', 'cortex.json']);
-
-        helper.read(dir, function (err, pkg) {
-            pkg.version = new_version;
-
-            helper.save(dir, pkg, function (err) {
-                expect(err).to.equal(null);
-                var json = fs.readJSON( node_path.join(dir, 'cortex.json') );
-
-                // should not affect pkg.version
-                expect(json.version).to.equal(new_version);
-                expect('cortex' in json).to.equal(false);
-                
-                done();
-            });
-        });
-    });
+  });
 });
 
 
+describe("helper.package_root()", function() {
+  it("found", function(done) {
 
-
+  });
+});
