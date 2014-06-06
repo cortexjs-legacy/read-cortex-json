@@ -37,7 +37,7 @@ exports._get_package_file = function(cwd, callback, strict) {
 
       if (strict) {
         return callback({
-          code: 'ENOPKG',
+          code: 'PKG_NOT_FOUND',
           message: 'Both cortex.json and package.json are not found.',
           data: {
             cwd: cwd
@@ -58,15 +58,15 @@ exports.read = function(cwd, callback, use_inherits) {
   var file;
   async.waterfall([
     function(done) {
-      exports.get_package_file(cwd, done, true);
+      exports._get_package_file(cwd, done, true);
     },
     function(f, done) {
       file = f;
-      exports.read_json(f, done);
+      exports._read_json(f, done);
     },
     function(json, done) {
-      if (!exports.is_cortex_json(file)) {
-        json = exports.merge_package_json(json, use_inherits);
+      if (!exports._is_cortex_json(file)) {
+        json = exports._merge_package_json(json, use_inherits);
       }
       done(null, json);
     }
@@ -86,7 +86,7 @@ exports.enhanced = function(cwd, callback) {
 
   async.waterfall([
     function(done) {
-      exports.get_package_file(cwd, done, true);
+      exports._get_package_file(cwd, done, true);
     },
 
     function(f, done) {
@@ -96,14 +96,14 @@ exports.enhanced = function(cwd, callback) {
 
     function(json, done) {
       // if read from package.json, there is a field named `cortex`
-      if (!exports.is_cortex_json(file)) {
-        json = exports.merge_package_json(json);
+      if (!exports._is_cortex_json(file)) {
+        json = exports._merge_package_json(json);
       }
 
       var name = json.name;
       if (name.toLowerCase() !== name) {
         return done({
-          code: 'EUPPERNAME',
+          code: 'ERROR_UPPER_NAME',
           message: 'package.name should not contain uppercased letters.',
           data: {
             name: name
@@ -136,23 +136,23 @@ exports._filter_package_fields = function(json) {
 
 
 exports.save = function(cwd, json, callback) {
-  exports.get_package_file(cwd, function(err, file) {
+  exports._get_package_file(cwd, function(err, file) {
     if (err) {
       return callback(err);
     }
 
-    if (exports.is_cortex_json(file)) {
-      exports.save_to_file(file, json, callback);
+    if (exports._is_cortex_json(file)) {
+      exports._save_to_file(file, json, callback);
 
     } else {
-      exports.read_json(file, function(err, pkg) {
+      exports._read_json(file, function(err, pkg) {
         if (err) {
           return callback(err);
         }
 
         pkg.cortex = json;
 
-        exports.save_to_file(file, pkg, callback);
+        exports._save_to_file(file, pkg, callback);
       });
     }
   });
@@ -162,7 +162,7 @@ exports.save = function(cwd, json, callback) {
 exports._save_to_file = function(file, json, callback) {
   fs.writeFile(file, JSON.stringify(json, null, 2), function(err) {
     callback(err && {
-      code: 'ESAVEPKG',
+      code: 'ERROR_SAVE_PKG',
       message: 'fail to save package to "' + file + '", error: ' + err.stack,
       data: {
         error: err,
@@ -177,7 +177,7 @@ exports._read_json = function(file, callback) {
   fse.readJson(file, function (err, pkg) {
     if (err) {
       return callback({
-        code: 'EREADPKG',
+        code: 'ERROR_READ_JSON',
         message: 'Error reading "' + file + '": \n' + e.stack,
         data: {
           error: e
@@ -247,7 +247,7 @@ exports.package_root = function(cwd, callback) {
 // Get the cached document of a specific package,
 // which will be saved by the last `cortex install` or `cortex publish`
 // @param {name} name
-// @param {} cache_root
+// @param {path} cache_root
 // @param {fuction(err, json)} callback
 exports.cached_document = function(name, cache_root, callback) {
   var document_file = node_path.join(options.cache_root, options.name, 'document.cache');
