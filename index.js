@@ -13,7 +13,7 @@ var async       = require('async');
 var REGEX_IS_CORTEX = /cortex\.json$/i;
 
 
-exports.is_cortex_json = function(file) {
+exports._is_cortex_json = function(file) {
   return REGEX_IS_CORTEX.test(file);
 };
 
@@ -22,7 +22,7 @@ exports.is_cortex_json = function(file) {
 // @param {path} cwd
 // @param {function(err, package_file)} callback
 // @param {boolean} strict If true and package is not found, an error will be thrown.
-exports.get_package_file = function(cwd, callback, strict) {
+exports._get_package_file = function(cwd, callback, strict) {
   var cortex_json = node_path.join(cwd, 'cortex.json');
   fs.exists(cortex_json, function (exists) {
     if (exists) {
@@ -52,6 +52,28 @@ exports.get_package_file = function(cwd, callback, strict) {
 };
 
 
+// Get the original json object about cortex, or the cortex field of package.json.
+// This method is often used for altering package.json file
+exports.read = function(cwd, callback, use_inherits) {
+  var file;
+  async.waterfall([
+    function(done) {
+      exports.get_package_file(cwd, done, true);
+    },
+    function(f, done) {
+      file = f;
+      exports.read_json(f, done);
+    },
+    function(json, done) {
+      if (!exports.is_cortex_json(file)) {
+        json = exports.merge_package_json(json, use_inherits);
+      }
+      done(null, json);
+    }
+
+  ], callback);
+};
+
 
 // Get the enhanced and cooked json object of package, including
 // - readme
@@ -59,7 +81,7 @@ exports.get_package_file = function(cwd, callback, strict) {
 // - gitHead
 // This method is often used for publishing
 // @param {string} cwd The ROOT directory of the current package 
-exports.get_enhanced_package = function(cwd, callback) {
+exports.enhanced = function(cwd, callback) {
   var file;
 
   async.waterfall([
@@ -69,7 +91,7 @@ exports.get_enhanced_package = function(cwd, callback) {
 
     function(f, done) {
       file = f;
-      exports.enhance_package_file(f, done);
+      exports._enhance_package_file(f, done);
     },
 
     function(json, done) {
@@ -96,34 +118,8 @@ exports.get_enhanced_package = function(cwd, callback) {
 };
 
 
-// Get the original json object about cortex, or the cortex field of package.json.
-// This method is often used for altering package.json file
-exports.get_original_package = function(cwd, callback, use_inherits) {
-  var file;
-
-  async.waterfall([
-
-    function(done) {
-      exports.get_package_file(cwd, done, true);
-    },
-
-    function(f, done) {
-      file = f;
-      exports.read_json(f, done);
-    },
-
-    function(json, done) {
-      if (!exports.is_cortex_json(file)) {
-        json = exports.merge_package_json(json, use_inherits);
-      }
-
-      done(null, json);
-    }
-
-  ], callback);
-};
-
-
+// We should not read these node.js configurations below
+// for cortex
 exports._filter_package_fields = function(json) {
   [
     'dependencies', 
@@ -139,7 +135,7 @@ exports._filter_package_fields = function(json) {
 };
 
 
-exports.save_package = function(cwd, json, callback) {
+exports.save = function(cwd, json, callback) {
   exports.get_package_file(cwd, function(err, file) {
     if (err) {
       return callback(err);
@@ -163,7 +159,7 @@ exports.save_package = function(cwd, json, callback) {
 };
 
 
-exports.save_to_file = function(file, json, callback) {
+exports._save_to_file = function(file, json, callback) {
   fs.writeFile(file, JSON.stringify(json, null, 2), function(err) {
     callback(err && {
       code: 'ESAVEPKG',
@@ -177,7 +173,7 @@ exports.save_to_file = function(file, json, callback) {
 };
 
 
-exports.read_json = function(file, callback) {
+exports._read_json = function(file, callback) {
   fse.readJson(file, function (err, pkg) {
     if (err) {
       return callback({
@@ -194,14 +190,14 @@ exports.read_json = function(file, callback) {
 };
 
 
-exports.enhance_package_file = function(file, callback) {
+exports._enhance_package_file = function(file, callback) {
   readPkgJSON(file, callback);
 };
 
 
 // Merge the fields of package.json into the field cortex
 // @param {boolean} use_inherits 
-exports.merge_package_json = function(pkg, use_inherits) {
+exports._merge_package_json = function(pkg, use_inherits) {
   var cortex;
 
   if (use_inherits) {
@@ -225,63 +221,8 @@ exports.merge_package_json = function(pkg, use_inherits) {
   return cortex;
 };
 
-
-exports.package_styles = function(cwd, pkg, callback) {
-  var directories_css = lang.object_member_by_namespaces(pkg, 'directories.css');
-
-  if (!directories_css) {
-    return callback(null, []);
-  }
-
-  if (directories_css.indexOf('../') === 0 || directories_css.indexOf('/') === 0) {
-    return callback({
-      code: 'EINVALIDDIRCSS',
-      message: '`directories.css` should not start with "../" or "/".',
-      data: {
-        css: directories_css
-      }
-    });
-  }
-
-  // './css' -> 'css'
-  if (directories_css.indexOf('./') === 0) {
-    directories_css = directories_css.slice(2);
-  }
-
-  var dir = node_path.join(cwd, directories_css);
-  fs.stat(dir, function (err, stats) {
-    if (err || !stats.isDirectory()) {
-      // #310
-      return callback({
-        code: 'ENOTENTCSS',
-        message: '`directories.css` defined but not found or can not access.',
-        data: {
-          css: directories_css
-        }
-      });
-    }
-
-    expand('**/*.css', {
-      cwd: dir
-    }, function (err, files) {
-      if (err) {
-        return callback(null, []);
-      }
-
-      // fixes #263
-      // 'a.css' -> 'css/a.css'
-      files = files.map(function (p) {
-        return node_path.join(directories_css, p);
-      });
-
-      callback(null, files);
-    })
-  });
-};
-
-
 // Get the root path of the project
-exports.repo_root = function(cwd, callback) {
+exports.package_root = function(cwd, callback) {
   if (cwd === '/') {
     return callback(null);
   }
@@ -305,11 +246,10 @@ exports.repo_root = function(cwd, callback) {
 
 // Get the cached document of a specific package,
 // which will be saved by the last `cortex install` or `cortex publish`
-// @param {Object} options
-// - name
-// - cache_root
+// @param {name} name
+// @param {} cache_root
 // @param {fuction(err, json)} callback
-exports.get_cached_document = function(options, callback) {
+exports.cached_document = function(name, cache_root, callback) {
   var document_file = node_path.join(options.cache_root, options.name, 'document.cache');
 
   fs.exists(document_file, function (exists) {
@@ -327,8 +267,7 @@ exports.get_cached_document = function(options, callback) {
       try {
         json = JSON.parse(content);
       } catch (e) {
-        // Legacy with modified < 2.0.0.
-        // The data structure of document.cache is changed, so remove old caches
+        // Removes bad data
         fse.remove(document_file, function(){});
       }
 
