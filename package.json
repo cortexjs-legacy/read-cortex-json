@@ -1,6 +1,6 @@
 {
   "name": "read-cortex-json",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "The thing cortex uses to read cortex.json files or fallback to read cortex configurations from package.json",
   "main": "index.js",
   "scripts": {
@@ -34,7 +34,8 @@
     "chai": "^1.9.1",
     "fs-sync": "^0.2.4",
     "tmp": "0.0.23",
-    "underscore": "~1.6.0"
+    "underscore": "~1.6.0",
+    "cortex-playground": "~0.1.2"
   },
   "dependencies": {
     "async": "^0.8.0",
