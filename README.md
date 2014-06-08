@@ -42,6 +42,12 @@ This method is different from `cortexJson.read()` that it will validate some stu
 
 For most situations, you need not use this.
 
+### cortexJson.validate(cwd, json, callback)
+
+- callback `function(err)`
+
+Validates the `json` data for a specified `cwd`. This method will validate directories and entries. 
+
 ### cortexJson.save(cwd, json, callback)
 
 - callback `function(err)`
