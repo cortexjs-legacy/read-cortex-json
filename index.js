@@ -355,7 +355,7 @@ exports.package_root = function(cwd, callback) {
 // @param {path} cache_root
 // @param {fuction(err, json)} callback
 exports.cached_document = function(name, cache_root, callback) {
-  var document_file = node_path.join(options.cache_root, options.name, 'document.cache');
+  var document_file = node_path.join(cache_root, name, 'document.cache');
 
   fs.exists(document_file, function (exists) {
     if (!exists) {
