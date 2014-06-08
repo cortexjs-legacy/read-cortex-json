@@ -9,6 +9,7 @@ var temp = require('tmp');
 var _ = require('underscore');
 
 var node_path = require('path');
+var packages = require('cortex-playground').packages;
 
 var root = node_path.resolve('test', 'playground', 'tmp');
 var fixtures = node_path.resolve('test', 'fixtures');
@@ -191,7 +192,7 @@ describe("helper.package_root()", function() {
     helper.package_root(dir, function (found) {
       expect(found).to.equal(dir);
       done();
-    })
+    });
   });
 
   it("not found", function(done){
@@ -206,6 +207,39 @@ describe("helper.package_root()", function() {
         done();
       })
     })
+  });
+});
+
+
+describe("helper.validate(cwd, pkg, callback)", function(){
+  it("should throw if css not found", function(done){
+    var p = packages('css-not-found');
+    p.copy(function (err, dir) {
+      expect(err).to.equal(null);
+      helper.read(dir, function (err, json) {
+        expect(err).to.equal(null);
+        helper.validate(dir, json, function (err) {
+          expect(err).not.to.equal(null);
+          expect(err.code).to.equal('CSS_NOT_FOUND');
+          done();
+        });
+      })
+    });
+  });
+
+  it("should throw if dir not found", function(done){
+    var p = packages('dir-not-found');
+    p.copy(function (err, dir) {
+      expect(err).to.equal(null);
+      helper.read(dir, function (err, json) {
+        expect(err).to.equal(null);
+        helper.validate(dir, json, function (err) {
+          expect(err).not.to.equal(null);
+          expect(err.code).to.equal('DIR_NOT_FOUND');
+          done();
+        });
+      });
+    });
   });
 });
 

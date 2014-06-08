@@ -9,6 +9,7 @@ var node_path   = require('path');
 var readPkgJSON = require('read-package-json');
 var lang        = require('./lang');
 var async       = require('async');
+var util        = require('util');
 
 var REGEX_IS_CORTEX = /cortex\.json$/i;
 
@@ -68,6 +69,7 @@ exports.read = function(cwd, callback, use_inherits) {
       if (!exports._is_cortex_json(file)) {
         json = exports._merge_package_json(json, use_inherits);
       }
+      exports._clean_pkg_css(json);
       done(null, json);
     }
 
@@ -100,21 +102,124 @@ exports.enhanced = function(cwd, callback) {
         json = exports._merge_package_json(json);
       }
 
-      var name = json.name;
-      if (name.toLowerCase() !== name) {
-        return done({
-          code: 'ERROR_UPPER_NAME',
-          message: 'package.name should not contain uppercased letters.',
-          data: {
-            name: name
-          }
-        });
-      }
-
+      exports._clean_pkg_css(json);
       done(null, json);
     }
 
   ], callback);
+};
+
+
+var SUPPORTED_DIRS = [
+  'src',
+  'dest'
+];
+
+// Validate pkg data for a specified `cwd`
+// TODO: split every test as an option
+exports.validate = function (cwd, pkg, callback) {
+  var name = pkg.name;
+  if (name.toLowerCase() !== name) {
+    return done({
+      code: 'ERROR_UPPER_NAME',
+      message: 'package.name should not contain uppercased letters.',
+      data: {
+        name: name
+      }
+    });
+  }
+
+  var directories = pkg.directories;
+  // However we should tell user to stop using `directories.css`,
+  // which will removed in the next major.
+  if (directories && ('css' in directories)) {
+    return callback({
+      code: 'NO_SUPPORT_DIR_CSS',
+      message: 'Cortex will no longer support `pkg.directories.css` since 4.0.0,\n'
+        + 'use `pkg.css` instead.'
+    });
+  }
+
+  var dirs = directories
+    ? Object.keys(directories)
+    : [];
+  var supported = dirs.every(function (dir) {
+    if (~SUPPORTED_DIRS.indexOf(dir)) {
+      return true;
+    }
+
+    callback({
+      code: 'NO_SUPPORT_DIR',
+      message: '`directories.' + dir + '` is not supported.',
+      data: {
+        dir: dir
+      }
+    });
+  });
+
+  if (!supported) {
+    return;
+  }
+  
+  var items = dirs.map(function (dir) {
+    return {
+      path: node_path.join(cwd, dir),
+      type: 'isDirectory',
+      error: {
+        code: 'DIR_NOT_FOUND',
+        message: '`directories.' + dir + '` is defined, but not found.',
+        data: {
+          dir: dir
+        }
+      }
+    };
+  });
+  var css = pkg.css;
+  if (css) {
+    css = css.map(function (path) {
+      return {
+        path: node_path.join(cwd, path),
+        type: 'isFile',
+        error: {
+          code: 'CSS_NOT_FOUND',
+          message: '`pkg.css` is defined, but "' + path + '" is not found.',
+          data: {
+            file: path
+          }
+        }
+      };
+    });
+    items = items.concat(css);
+  }
+
+  // Make sure `directories` and `css` exist
+  async.each(items, exports._test_path, callback);
+};
+
+
+exports._test_path = function (obj, callback) {
+  fs.stat(obj.path, function (err, stat) {
+    if (err || stat[obj.type]()) {
+      return callback(obj.error);
+    }
+    callback(null);
+  });
+};
+
+
+exports._clean_pkg_css = function (pkg) {
+  var css = pkg.css;
+  if (!css) {
+    return;
+  }
+
+  css = util.isArray(css)
+    ? css
+    : [css];
+
+  pkg.css = css.map(function (path) {
+    return node_path.join('.', path);
+  });
 };
 
 
