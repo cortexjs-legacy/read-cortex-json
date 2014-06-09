@@ -191,13 +191,13 @@ exports.validate = function (cwd, pkg, callback) {
     });
     items = items.concat(css);
   }
-console.log('items')
+
   // Make sure `directories` and `css` exist
   async.each(items, exports._test_path, callback);
 };
 
 
-exports._test_path = function (obj, done) { console.log('obj', obj)
+exports._test_path = function (obj, done) {
   fs.stat(obj.path, function (err, stat) {
     if (err || !stat[obj.type]()) {
       return done(obj.error);
