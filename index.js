@@ -112,7 +112,7 @@ exports.enhanced = function(cwd, callback) {
 
 var SUPPORTED_DIRS = [
   'src',
-  'dest'
+  'dist'
 ];
 
 // Validate pkg data for a specified `cwd`
