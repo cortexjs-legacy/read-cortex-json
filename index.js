@@ -197,7 +197,7 @@ exports.validate = function (cwd, pkg, callback) {
 };
 
 
-exports._test_path = function (obj, callback) {
+exports._test_path = function (obj, callback) { console.log(obj)
   fs.stat(obj.path, function (err, stat) {
     if (err || stat[obj.type]()) {
       return callback(obj.error);

@@ -233,7 +233,7 @@ describe("helper.validate(cwd, pkg, callback)", function(){
       expect(err).to.equal(null);
       helper.read(dir, function (err, json) {
         expect(err).to.equal(null);
-        helper.validate(dir, json, function (err) {
+        helper.validate(dir, json, function (err) { console.log(err, Object.prototype.toString.call(err))
           expect(err).not.to.equal(null);
           expect(err.code).to.equal('DIR_NOT_FOUND');
           done();
