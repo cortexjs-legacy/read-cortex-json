@@ -89,21 +89,17 @@ exports.enhanced = function(cwd, callback) {
     function(done) {
       exports._get_package_file(cwd, done, true);
     },
-
     function(f, done) {
       file = f;
       exports._enhance_package_file(f, done);
     },
-
     function(json, done) {
       // if read from package.json, there is a field named `cortex`
       if (!exports._is_cortex_json(file)) {
         json = exports._merge_package_json(json);
       }
-
       exports._clean_pkg_css(cwd, json, done);
     }
-
   ], callback);
 };
 
@@ -208,7 +204,7 @@ exports._test_path = function (obj, done) {
 exports._clean_pkg_css = function (cwd, pkg, callback) {
   var css = pkg.css;
   if (!css) {
-    return;
+    return callback(null, pkg);
   }
 
   css = util.isArray(css)

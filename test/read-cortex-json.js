@@ -245,3 +245,14 @@ describe("helper.validate(cwd, pkg, callback)", function(){
   });
 });
 
+describe("#6", function(){
+  it("enhance() should callback if no css", function(done){
+    var p = packages('simplest');
+    p.copy(function (err, dir) {
+      helper.enhanced(dir, function () {
+        done();
+      });
+    });
+  });
+});
+
