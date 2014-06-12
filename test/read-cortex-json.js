@@ -218,12 +218,14 @@ describe("helper.validate(cwd, pkg, callback)", function(){
       expect(err).to.equal(null);
       helper.read(dir, function (err, json) {
         expect(err).to.equal(null);
-        helper.validate(dir, json, function (err) {
-          expect(err).not.to.equal(null);
-          expect(err.code).to.equal('CSS_NOT_FOUND');
-          done();
+        helper._clean_pkg_css(dir, json, function (err, json) {
+          helper.validate(dir, json, function (err) {
+            expect(err).not.to.equal(null);
+            expect(err.code).to.equal('CSS_NOT_FOUND');
+            done();
+          });
         });
-      })
+      });
     });
   });
 

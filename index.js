@@ -69,7 +69,6 @@ exports.read = function(cwd, callback, use_inherits) {
       if (!exports._is_cortex_json(file)) {
         json = exports._merge_package_json(json, use_inherits);
       }
-      exports._clean_pkg_css(json);
       done(null, json);
     }
 
@@ -102,8 +101,7 @@ exports.enhanced = function(cwd, callback) {
         json = exports._merge_package_json(json);
       }
 
-      exports._clean_pkg_css(json);
-      done(null, json);
+      exports._clean_pkg_css(cwd, json, done);
     }
 
   ], callback);
@@ -207,7 +205,7 @@ exports._test_path = function (obj, done) {
 };
 
 
-exports._clean_pkg_css = function (pkg) {
+exports._clean_pkg_css = function (cwd, pkg, callback) {
   var css = pkg.css;
   if (!css) {
     return;
@@ -217,8 +215,27 @@ exports._clean_pkg_css = function (pkg) {
     ? css
     : [css];
 
-  pkg.css = css.map(function (path) {
-    return node_path.join('.', path);
+  expand(css, {
+    cwd: cwd,
+    globOnly: true
+
+  }, function (err, files) {
+    if (err) {
+      return callback(err);
+    }
+
+    if (css.length && !files.length) {
+      return callback({
+        code: 'INVALID_CORTEX_CSS',
+        message: '`cortex.css` defined but no css files found.',
+        data: {
+          css: css
+        }
+      });
+    }
+
+    pkg.css = files;
+    callback(null, pkg);
   });
 };
 
