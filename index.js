@@ -204,6 +204,9 @@ exports._test_path = function (obj, done) {
 exports._clean_pkg_css = function (cwd, pkg, callback) {
   var css = pkg.css;
   if (!css) {
+    // #8
+    // standardize `pkg.css` and make sure it is always an array.
+    pkg.css = [];
     return callback(null, pkg);
   }
 
