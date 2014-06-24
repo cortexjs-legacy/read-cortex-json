@@ -5,6 +5,7 @@ var helper = require('../');
 
 var tmp = require('./lib/tmp');
 var fs = require('fs-sync');
+var util = require('util');
 var temp = require('tmp');
 var _ = require('underscore');
 
@@ -256,3 +257,26 @@ describe("#6", function(){
   });
 });
 
+describe("#8", function(){
+  it("pkg.css should always be an array after enhanced", function(done){
+    var p = packages('simplest');
+    p.copy(function (err, dir) {
+      helper.enhanced(dir, function (err, pkg) {
+        expect(util.isArray(pkg.css)).to.equal(true);
+      });
+    });
+  });
+});
+
+describe("#9", function(){
+  it("pkg.main should be deleted if entry file not found", function(done){
+    var p = packages('simplest');
+    p.copy(function (err, dir) {
+      var main = node_path.join(dir, 'index.js');
+      fs.remove(main);
+      helper.enhanced(dir, function (err, pkg) {
+        expect('main' in pkg).to.equal(false);
+      });
+    });
+  });
+});
