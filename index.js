@@ -99,6 +99,9 @@ exports.enhanced = function(cwd, callback) {
         json = exports._merge_package_json(json);
       }
       exports._clean_pkg_css(cwd, json, done);
+    },
+    function (json, done) {
+      exports._clean_pkg_main(cwd, json, done);
     }
   ], callback);
 };
@@ -236,6 +239,24 @@ exports._clean_pkg_css = function (cwd, pkg, callback) {
     pkg.css = files;
     callback(null, pkg);
   });
+};
+
+
+exports._clean_pkg_main = function (cwd, pkg, callback) {
+  var main = pkg.main || 'index.js';
+  main = node_path.join(cwd, main);
+  var parsed;
+  try {
+    parsed = require.resolve(main);
+  } catch(e) {
+    // pkg.main not found, just delete and clean
+    delete pkg.main;
+    callback(null, pkg);
+  }
+
+  // './index.js' -> '/path/to/index.js' -> 'index.js'
+  pkg.main = node_path.relative(cwd, parsed);
+  callback(null, pkg);
 };
 
 
