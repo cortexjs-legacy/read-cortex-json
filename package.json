@@ -42,7 +42,6 @@
     "fs-extra": "^0.8.1",
     "fs-expand": "^0.2.0",
     "read-package-json": "^1.1.9",
-    "mkdirp": "^0.5.0",
-    "cortex-playground": "~0.1.7"
+    "mkdirp": "^0.5.0"
   }
 }
