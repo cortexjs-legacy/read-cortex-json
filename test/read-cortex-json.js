@@ -263,6 +263,7 @@ describe("#8", function(){
     p.copy(function (err, dir) {
       helper.enhanced(dir, function (err, pkg) {
         expect(util.isArray(pkg.css)).to.equal(true);
+        done();
       });
     });
   });
@@ -276,6 +277,7 @@ describe("#9", function(){
       fs.remove(main);
       helper.enhanced(dir, function (err, pkg) {
         expect('main' in pkg).to.equal(false);
+        done();
       });
     });
   });

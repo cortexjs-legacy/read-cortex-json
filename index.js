@@ -251,7 +251,7 @@ exports._clean_pkg_main = function (cwd, pkg, callback) {
   } catch(e) {
     // pkg.main not found, just delete and clean
     delete pkg.main;
-    callback(null, pkg);
+    return callback(null, pkg);
   }
 
   // './index.js' -> '/path/to/index.js' -> 'index.js'
