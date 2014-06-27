@@ -257,6 +257,17 @@ exports._clean_pkg_main = function (cwd, pkg, callback) {
 
   function cb (parsed) {
     if (parsed) {
+      // `require.resolve` is really weird that it will change the path of temp directory.
+      // The situation below might happen:
+      // ```
+      // var a = '/var/folders/xxxxxx'
+      // var b = require.resolve(a); // -> /private/var/folders/xxxxx.js
+      // ```
+      var index = parsed.indexOf(cwd);
+      if (~index) {
+        // b -> '/var/folders/xxxxx.js'
+        parsed = parsed.slice(index);
+      }
       // './index.js' -> '/path/to/index.js' -> 'index.js'
       pkg.main = node_path.relative(cwd, parsed);
     } else {
@@ -283,7 +294,7 @@ exports._clean_pkg_main = function (cwd, pkg, callback) {
 
   parsed = exports._test_file(cwd, index) 
     // fallback to <name>.js
-    || exports._test_file(cwd, name_js); console.log(cwd, parsed)
+    || exports._test_file(cwd, name_js);
   cb(parsed);
 };
 
