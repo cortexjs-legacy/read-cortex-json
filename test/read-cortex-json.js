@@ -269,15 +269,36 @@ describe("#8", function(){
   });
 });
 
-describe("#9", function(){
-  it("pkg.main should be deleted if entry file not found", function(done){
+describe("#10", function(){
+  it("if pkg.main defined but not found, it will throw errors", function(done){
     var p = packages('simplest');
     p.copy(function (err, dir) {
       var main = node_path.join(dir, 'index.js');
       fs.remove(main);
       helper.enhanced(dir, function (err, pkg) {
-        expect('main' in pkg).to.equal(false);
+        expect(err.code).to.equal('MAIN_NOT_FOUND');
         done();
+      });
+    });
+  });
+
+  it("if pkg.main not found, it will try to fallback to <name>.js", function(done){
+    var p = packages('simplest');
+    p.copy(function (err, dir) {
+      var main = node_path.join(dir, 'index.js');
+      fs.remove(main);
+      helper.read(dir, function (err, pkg) {
+        delete pkg.main;
+        var name_js = pkg.name + '.js';
+        var name_js_file = node_path.join(dir, name_js);
+        fs.write(name_js_file, '');
+        var cortex_json = node_path.join(dir, 'cortex.json');
+        fs.write(cortex_json, JSON.stringify(pkg, null, 2));
+        helper.enhanced(dir, function (err, pkg) { console.log(err)
+          expect(err).to.equal(null);
+          expect(pkg.main).to.equal(name_js);
+          done();
+        });
       });
     });
   });

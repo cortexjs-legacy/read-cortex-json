@@ -84,26 +84,33 @@ exports.read = function(cwd, callback, use_inherits) {
 // @param {string} cwd The ROOT directory of the current package 
 exports.enhanced = function(cwd, callback) {
   var file;
+  exports._get_package_file(cwd, function (err, file) {
+    if (err) {
+      return callback(err);
+    }
 
-  async.waterfall([
-    function(done) {
-      exports._get_package_file(cwd, done, true);
-    },
-    function(f, done) {
-      file = f;
-      exports._enhance_package_file(f, done);
-    },
-    function(json, done) {
+    exports._enhance_package_file(file, function (err, json) {
+      if (err) {
+        return callback(err);
+      }
       // if read from package.json, there is a field named `cortex`
       if (!exports._is_cortex_json(file)) {
         json = exports._merge_package_json(json);
       }
-      exports._clean_pkg_css(cwd, json, done);
-    },
-    function (json, done) {
-      exports._clean_pkg_main(cwd, json, done);
-    }
-  ], callback);
+
+      async.each([
+        '_clean_pkg_css',
+        '_clean_pkg_main'
+      ], function (task, done) {
+        exports[task](cwd, json, done);
+      }, function (err) {
+        if (err) {
+          return callback(err);
+        }
+        callback(null, json);
+      });
+    });
+  }, true);
 };
 
 
@@ -132,8 +139,8 @@ exports.validate = function (cwd, pkg, callback) {
   if (directories && ('css' in directories)) {
     return callback({
       code: 'NO_SUPPORT_DIR_CSS',
-      message: 'Cortex will no longer support `pkg.directories.css` since 4.0.0,\n'
-        + 'use `pkg.css` instead.'
+      message: 'Cortex will no longer support `cortex.directories.css` since 4.0.0,\n'
+        + 'use `cortex.css` instead.'
     });
   }
 
@@ -243,20 +250,52 @@ exports._clean_pkg_css = function (cwd, pkg, callback) {
 
 
 exports._clean_pkg_main = function (cwd, pkg, callback) {
-  var main = pkg.main || 'index.js';
-  main = node_path.join(cwd, main);
+  var main = pkg.main;
+  var index = 'index.js';
+  var name_js = pkg.name + '.js';
   var parsed;
-  try {
-    parsed = require.resolve(main);
-  } catch(e) {
-    // pkg.main not found, just delete and clean
-    delete pkg.main;
-    return callback(null, pkg);
+
+  function cb (parsed) {
+    if (parsed) {
+      // './index.js' -> '/path/to/index.js' -> 'index.js'
+      pkg.main = node_path.relative(cwd, parsed);
+    } else {
+      // `pkg` might has a prototype, so we can't remove a key by deleting them.
+      // set it to undefined, `JSON.stringify()` will ignore it.
+      pkg.main = undefined;
+    }
+    callback(null, pkg);
   }
 
-  // './index.js' -> '/path/to/index.js' -> 'index.js'
-  pkg.main = node_path.relative(cwd, parsed);
-  callback(null, pkg);
+  if (main) {
+    parsed = exports._test_file(cwd, main);
+    if (!parsed) {
+      return callback({
+        code: 'MAIN_NOT_FOUND',
+        message: '`cortex.main` is defined but "' + main + '" not found.',
+        data: {
+          main: main
+        }
+      });
+    }
+    return cb(parsed);
+  }
+
+  parsed = exports._test_file(cwd, index) 
+    // fallback to <name>.js
+    || exports._test_file(cwd, name_js); console.log(cwd, parsed)
+  cb(parsed);
+};
+
+
+exports._test_file = function (cwd, file) {
+  var file = node_path.join(cwd, file);
+  try {
+    file = require.resolve(file);
+  } catch(e) {
+    return null;
+  }
+  return file;
 };
 
 
