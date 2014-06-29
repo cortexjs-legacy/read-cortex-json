@@ -3,12 +3,10 @@
 'use strict';
 
 var fse         = require('fs-extra');
-var expand      = require('fs-expand');
 var fs          = require('fs');
 var node_path   = require('path');
 var readPkgJSON = require('read-package-json');
 var async       = require('async');
-var util        = require('util');
 var cleaner     = require('./lib/cleaner');
 var lang        = require('./lib/lang');
 
