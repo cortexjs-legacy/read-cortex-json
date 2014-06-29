@@ -40,13 +40,10 @@ cortexJson.read('/path/to/your/repo', function(err, json){
 
 This method is different from `cortexJson.read()` that it will validate some stuff and flavors the object with some default values which cortex registry needs.
 
+`cortexJson.enhanced` will santitize `cortex.main`, `cortex.css` and `cortex.entires`, globing wildcards, checking the existence of files, and so on.
+
 For most situations, you need not use this.
 
-### cortexJson.validate(cwd, json, callback)
-
-- callback `function(err)`
-
-Validates the `json` data for a specified `cwd`. This method will validate directories and entries. 
 
 ### cortexJson.save(cwd, json, callback)
 
