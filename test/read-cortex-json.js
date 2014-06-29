@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var helper = require('../');
+var cleaner = require('../lib/cleaner');
 
 var tmp = require('./lib/tmp');
 var fs = require('fs-sync');
@@ -212,31 +213,29 @@ describe("helper.package_root()", function() {
 });
 
 
-describe("helper.validate(cwd, pkg, callback)", function(){
-  it("should throw if css not found", function(done){
+describe("cleaner", function(){
+  it("cleaner.clean_pkg_css(): should throw if css not found", function(done){
     var p = packages('css-not-found');
     p.copy(function (err, dir) {
       expect(err).to.equal(null);
       helper.read(dir, function (err, json) {
         expect(err).to.equal(null);
-        helper._clean_pkg_css(dir, json, function (err, json) {
-          helper.validate(dir, json, function (err) {
-            expect(err).not.to.equal(null);
-            expect(err.code).to.equal('CSS_NOT_FOUND');
-            done();
-          });
+        cleaner.clean_pkg_css(dir, json, function (err, json) {
+          expect(err).not.to.equal(null);
+          expect(err.code).to.equal('CORTEX_CSS_NOT_FOUND');
+          done();
         });
       });
     });
   });
 
-  it("should throw if dir not found", function(done){
+  it("cleaner.check_dirs(): should throw if dir not found", function(done){
     var p = packages('dir-not-found');
     p.copy(function (err, dir) {
       expect(err).to.equal(null);
       helper.read(dir, function (err, json) {
         expect(err).to.equal(null);
-        helper.validate(dir, json, function (err) {
+        cleaner.check_dirs(dir, json, function (err) {
           expect(err).not.to.equal(null);
           expect(err.code).to.equal('DIR_NOT_FOUND');
           done();
@@ -276,7 +275,7 @@ describe("#10", function(){
       var main = node_path.join(dir, 'index.js');
       fs.remove(main);
       helper.enhanced(dir, function (err, pkg) {
-        expect(err.code).to.equal('MAIN_NOT_FOUND');
+        expect(err.code).to.equal('CORTEX_MAIN_NOT_FOUND');
         done();
       });
     });
@@ -294,7 +293,7 @@ describe("#10", function(){
         fs.write(name_js_file, '');
         var cortex_json = node_path.join(dir, 'cortex.json');
         fs.write(cortex_json, JSON.stringify(pkg, null, 2));
-        helper.enhanced(dir, function (err, pkg) { console.log(err)
+        helper.enhanced(dir, function (err, pkg) {
           expect(err).to.equal(null);
           expect(pkg.main).to.equal(name_js);
           done();
