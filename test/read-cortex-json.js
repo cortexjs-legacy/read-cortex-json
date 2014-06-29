@@ -272,6 +272,26 @@ describe("cleaner", function(){
       });
     });
   });
+
+  it("`pkg.css` should always be an array", function(done){
+    var p = packages('simplest');
+    p.copy(function (err, dir) {
+      helper.enhanced(dir, function (err, pkg) {
+        expect(util.isArray(pkg.css)).to.equal(true);
+        done();
+      });
+    });
+  });
+
+  it("`pkg.entries` should always be an array", function(done){
+    var p = packages('simplest');
+    p.copy(function (err, dir) {
+      helper.enhanced(dir, function (err, pkg) {
+        expect(util.isArray(pkg.entries)).to.equal(true);
+        done();
+      });
+    });
+  });
 });
 
 describe("#6", function(){
