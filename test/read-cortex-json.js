@@ -244,7 +244,7 @@ describe("cleaner", function(){
     });
   });
 
-  it.only("if a package has nothing, it will fail", function(done){
+  it("if a package has nothing, it will fail", function(done){
     var p = packages('dir-not-found');
     p.copy(function (err, dir) {
       expect(err).to.equal(null);
