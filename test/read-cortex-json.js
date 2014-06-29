@@ -259,6 +259,19 @@ describe("cleaner", function(){
       });
     });
   });
+
+  it("#12", function(done){
+    var p = packages('simplest');
+    p.copy(function (err, dir) {
+      var name = node_path.join(dir, 'simplest.js');
+      fs.write(name, '');
+      helper.enhanced(dir, function (err, pkg) {
+        expect(err).not.to.equal(null);
+        expect(err.code).to.equal('CORTEX_MAIN_CONFLICT');
+        done();
+      });
+    });
+  });
 });
 
 describe("#6", function(){
