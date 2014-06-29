@@ -43,6 +43,7 @@ This method is different from `cortexJson.read()` that it will validate some stu
 - `cortex.main` will be `require.resolve()`d. That is, if there is a `index.js`, but `cortex.main` is `'index'`, and after `enhanced()`, `cortex.main` will be `'index.js'`.
 - `cortex.css` and `cortex.entries` will always be an **globbed** array(even an empty array) after `enhanced()`
 - If a path, either from `main`, `css`, or `entries`, is explicitly defined but not found, an error will throw.
+- If a package has neither `main`, `css`, nor `entries`, an `'CORTEX_NO_ENTRY'` error will throw.
 
 ### cortexJson.save(cwd, json, callback)
 
