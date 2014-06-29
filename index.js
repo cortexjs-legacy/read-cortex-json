@@ -99,30 +99,9 @@ exports.enhanced = function(cwd, callback) {
         json = exports._merge_package_json(json);
       }
 
-      async.each([
-        '_clean_pkg_css',
-        '_clean_pkg_main'
-      ], function (task, done) {
-        exports[task](cwd, json, done);
-      }, function (err) {
-        if (err) {
-          return callback(err);
-        }
-        callback(null, json);
-      });
+      cleaner.clean(cwd, json, callback);
     });
   }, true);
-};
-
-
-exports._test_file = function (cwd, file) {
-  var file = node_path.join(cwd, file);
-  try {
-    file = require.resolve(file);
-  } catch(e) {
-    return null;
-  }
-  return file;
 };
 
 
@@ -133,7 +112,7 @@ exports._filter_package_fields = function(json) {
     'dependencies', 
     'asyncDependencies', 
     'devDependencies', 
-    // 'engines',
+    'engines',
     'scripts'
   ].forEach(function(key) {
     if (!json.hasOwnProperty(key)) {
