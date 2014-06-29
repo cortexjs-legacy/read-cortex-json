@@ -243,6 +243,22 @@ describe("cleaner", function(){
       });
     });
   });
+
+  it.only("if a package has nothing, it will fail", function(done){
+    var p = packages('dir-not-found');
+    p.copy(function (err, dir) {
+      expect(err).to.equal(null);
+      var cortex_json = node_path.join(dir, 'cortex.json');
+      fs.write(cortex_json, '{}');
+      var index = node_path.join(dir, 'index.js');
+      fs.remove(index);
+      helper.enhanced(dir, function (err, json) {
+        expect(err).not.to.equal(null);
+        expect(err.code).to.equal('CORTEX_NO_ENTRY');
+        done();
+      });
+    });
+  });
 });
 
 describe("#6", function(){
