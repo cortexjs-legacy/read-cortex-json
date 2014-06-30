@@ -50,6 +50,8 @@ This method is different from `cortexJson.read()` that it will validate some stu
 
 Cleans the `json` for legacy.
 
+This method will check the `json` object first. If it is an old object, `cortexJson.clean` will santitize it.
+
 ### cortexJson.save(cwd, json, callback)
 
 - callback `function(err)`
