@@ -273,6 +273,25 @@ describe("cleaner", function(){
     });
   });
 
+  it.only("`pkg.main` should always exist, it main not exists, it should be false", function(done){
+    var p = packages('simplest');
+    p.copy(function (err, dir) {
+      var cortex_json = node_path.join(dir, 'cortex.json');
+      var json = fs.readJSON(cortex_json);
+      json.css = ['style.css'];
+      delete json.main;
+      fs.write(cortex_json, JSON.stringify(json, null, 2));
+      fs.write(node_path.join(dir, 'style.css'), '');
+      var index = node_path.join(dir, 'index.js');
+      fs.remove(index);
+      helper.enhanced(dir, function (err, pkg) {
+        expect('main' in pkg).to.equal(true);
+        expect(pkg.main).to.equal(false);
+        done();
+      });
+    });
+  });
+
   it("`pkg.css` should always be an array", function(done){
     var p = packages('simplest');
     p.copy(function (err, dir) {
