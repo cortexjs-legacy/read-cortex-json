@@ -45,12 +45,19 @@ This method is different from `cortexJson.read()` that it will validate some stu
 - If a path, either from `main`, `css`, or `entries`, is explicitly defined but not found, an error will throw.
 - If a package has neither `main`, `css`, nor `entries`, an `'CORTEX_NO_ENTRY'` error will throw.
 
-
 ### cortexJson.clean(cwd, json, callback)
 
 Cleans the `json` for legacy.
 
 This method will check the `json` object first. If it is an old object, `cortexJson.clean` will santitize it.
+
+After `cortexJson.clean()` and `cortexJson.enhanced()`, there are always 
+
+- `main`, if no main entry found, it will be `false`
+- `css`, if no csses found, it will be `[]`
+- `entries`, if no entries found, it will be `[]`
+
+in the `json` data.
 
 ### cortexJson.save(cwd, json, callback)
 
