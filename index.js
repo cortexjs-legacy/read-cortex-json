@@ -13,6 +13,8 @@ var lang        = require('./lib/lang');
 var REGEX_IS_CORTEX = /cortex\.json$/i;
 
 
+exports.clean = cleaner.clean;
+
 exports._is_cortex_json = function(file) {
   return REGEX_IS_CORTEX.test(file);
 };
