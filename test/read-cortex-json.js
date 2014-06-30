@@ -273,7 +273,7 @@ describe("cleaner", function(){
     });
   });
 
-  it.only("`pkg.main` should always exist, it main not exists, it should be false", function(done){
+  it("`pkg.main` should always exist, it main not exists, it should be false", function(done){
     var p = packages('simplest');
     p.copy(function (err, dir) {
       var cortex_json = node_path.join(dir, 'cortex.json');
