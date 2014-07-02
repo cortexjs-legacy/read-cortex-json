@@ -177,9 +177,9 @@ exports._read_json = function(file, callback) {
     if (err) {
       return callback({
         code: 'ERROR_READ_JSON',
-        message: 'Error reading "' + file + '": \n' + e.stack,
+        message: 'Error reading "' + file + '": \n' + err.stack,
         data: {
-          error: e
+          error: err
         }
       });
     }
