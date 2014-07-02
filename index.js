@@ -122,7 +122,8 @@ exports._filter_package_fields = function(json) {
   [
     'dependencies', 
     'asyncDependencies', 
-    'devDependencies', 
+    'devDependencies',
+    'directories',
     'engines',
     'scripts'
   ].forEach(function(key) {
