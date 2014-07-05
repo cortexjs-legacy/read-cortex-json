@@ -359,7 +359,7 @@ describe("#10", function(){
 });
 
 
-describe("#19", function(){
+describe("#16", function(){
   it("check if there is an entry named <name>.js", function(done){
     var p = packages('simplest');
     p.copy(function (err, dir) {
@@ -377,6 +377,31 @@ describe("#19", function(){
       helper.enhanced(dir, function (err, pkg) {
         expect(err).not.to.equal(null);
         expect(err.code).to.equal('CORTEX_MAIN_CONFLICT');
+        done();
+      });
+    });
+  });
+});
+
+
+describe("#15", function(){
+  it("ban to fallback to .node file", function(done){
+    var p = packages('simplest');
+    p.copy(function (err, dir) {
+      var cortex_json = node_path.join(dir, 'cortex.json');
+      var json = fs.readJSON(cortex_json);
+      json.main = 'index'
+      fs.write(cortex_json, JSON.stringify(json, null, 2));
+
+      var index = node_path.join(dir, 'index.js');
+      fs.remove(index);
+      
+      var node = node_path.join(dir, 'index.node');
+      fs.write(node, '');
+      
+      helper.enhanced(dir, function (err, pkg) {
+        expect(err).not.to.equal(null);
+        expect(err.code).to.equal('CORTEX_MAIN_NOT_FOUND');
         done();
       });
     });
