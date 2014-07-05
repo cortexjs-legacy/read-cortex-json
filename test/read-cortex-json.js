@@ -260,19 +260,6 @@ describe("cleaner", function(){
     });
   });
 
-  it("#12", function(done){
-    var p = packages('simplest');
-    p.copy(function (err, dir) {
-      var name = node_path.join(dir, 'simplest.js');
-      fs.write(name, '');
-      helper.enhanced(dir, function (err, pkg) {
-        expect(err).not.to.equal(null);
-        expect(err.code).to.equal('CORTEX_MAIN_CONFLICT');
-        done();
-      });
-    });
-  });
-
   it("`pkg.main` should always exist, it main not exists, it should be false", function(done){
     var p = packages('simplest');
     p.copy(function (err, dir) {
@@ -366,6 +353,31 @@ describe("#10", function(){
           expect(pkg.main).to.equal(name_js);
           done();
         });
+      });
+    });
+  });
+});
+
+
+describe("#19", function(){
+  it("check if there is an entry named <name>.js", function(done){
+    var p = packages('simplest');
+    p.copy(function (err, dir) {
+      var cortex_json = node_path.join(dir, 'cortex.json');
+      var json = fs.readJSON(cortex_json);
+      json.entries = ['simplest.js'];
+      delete json.main;
+      var index = node_path.join(dir, 'index.js');
+      fs.remove(index);
+      fs.write(cortex_json, JSON.stringify(json, null, 2));
+
+      var name_js = node_path.join(dir, 'simplest.js');
+      fs.write(name_js, '');
+      
+      helper.enhanced(dir, function (err, pkg) {
+        expect(err).not.to.equal(null);
+        expect(err.code).to.equal('CORTEX_MAIN_CONFLICT');
+        done();
       });
     });
   });
