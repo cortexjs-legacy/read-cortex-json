@@ -350,7 +350,7 @@ describe("#10", function(){
         fs.write(cortex_json, JSON.stringify(pkg, null, 2));
         helper.enhanced(dir, function (err, pkg) {
           expect(err).to.equal(null);
-          expect(pkg.main).to.equal(name_js);
+          expect(pkg.main).to.equal('.' + node_path.sep + name_js);
           done();
         });
       });
