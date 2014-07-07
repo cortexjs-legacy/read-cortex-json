@@ -407,3 +407,61 @@ describe("#15", function(){
     });
   });
 });
+
+
+describe("#17", function(){
+  it("should delete relative origin", function(done){
+    var p = packages('simplest');
+    p.copy(function (err, dir) {
+      var cortex_json = node_path.join(dir, 'cortex.json');
+      var json = fs.readJSON(cortex_json);
+      json['as'] = {
+        './abc': './abc.js'
+      };
+      fs.write(cortex_json, JSON.stringify(json, null, 2));
+      
+      helper.enhanced(dir, function (err, pkg) {
+        expect(err).to.equal(null);
+        expect('./abc' in pkg['as']).to.equal(false);
+        done();
+      });
+    });
+  });
+
+  it("should detect the alias which is not found", function(done){
+    var p = packages('simplest');
+    p.copy(function (err, dir) {
+      var cortex_json = node_path.join(dir, 'cortex.json');
+      var json = fs.readJSON(cortex_json);
+      json['as'] = {
+        'abc': './abc.js'
+      };
+      fs.write(cortex_json, JSON.stringify(json, null, 2));
+      
+      helper.enhanced(dir, function (err, pkg) {
+        expect(err).not.to.equal(null);
+        expect(err.code).to.equal('AS_NOT_FOUND');
+        done();
+      });
+    });
+  });
+
+  it("should resolve alias", function(done){
+    var p = packages('simplest');
+    p.copy(function (err, dir) {
+      var cortex_json = node_path.join(dir, 'cortex.json');
+      var json = fs.readJSON(cortex_json);
+      json['as'] = {
+        'abc': './abc'
+      };
+      fs.write(cortex_json, JSON.stringify(json, null, 2));
+      var abc = node_path.join(dir, 'abc.js');
+      fs.write(abc, '');
+      helper.enhanced(dir, function (err, pkg) {
+        expect(err).to.equal(null);
+        expect(pkg['as']['abc']).to.equal('./abc.js');
+        done();
+      });
+    });
+  });
+});
