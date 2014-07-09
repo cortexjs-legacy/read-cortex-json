@@ -249,7 +249,7 @@ describe("cleaner", function(){
     p.copy(function (err, dir) {
       expect(err).to.equal(null);
       var cortex_json = node_path.join(dir, 'cortex.json');
-      fs.write(cortex_json, '{}');
+      fs.write(cortex_json, JSON.stringify({name: 'a', version: '1.1.0'}));
       var index = node_path.join(dir, 'index.js');
       fs.remove(index);
       helper.enhanced(dir, function (err, json) {
@@ -296,6 +296,15 @@ describe("cleaner", function(){
         expect(util.isArray(pkg.entries)).to.equal(true);
         done();
       });
+    });
+  });
+
+  it("#18: name and version", function(done){
+    var pkg = {};
+    cleaner.clean(null, pkg, function (err) {
+      expect(err).not.to.equal(null);
+      expect(err.code).to.equal('NO_CORTEX_NAME_VERSION');
+      done();
     });
   });
 });
