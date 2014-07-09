@@ -220,12 +220,16 @@ exports._merge_package_json = function(pkg, use_inherits) {
   return cortex;
 };
 
-// Get the root path of the project
 
-// in windows, sys_root will be 'c:\\'
-var SYS_ROOT = node_path.resolve('/');
+var SYS_ROOT = node_path
+  // in windows, sys_root will be 'c:\\'
+  .resolve('/')
+  // It is weird that sometime the disk name of windows is lowercase, sometime uppercase
+  .toLowerCase();
+
+// Get the root path of the project
 exports.package_root = function(cwd, callback) {
-  if (cwd === SYS_ROOT) {
+  if (!cwd || cwd.toLowerCase() === SYS_ROOT) {
     return callback(null);
   }
 
