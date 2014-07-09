@@ -221,8 +221,11 @@ exports._merge_package_json = function(pkg, use_inherits) {
 };
 
 // Get the root path of the project
+
+// in windows, sys_root will be 'c:\\'
+var SYS_ROOT = node_path.resolve('/');
 exports.package_root = function(cwd, callback) {
-  if (cwd === '/') {
+  if (cwd === SYS_ROOT) {
     return callback(null);
   }
 
