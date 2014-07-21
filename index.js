@@ -5,7 +5,7 @@
 var fse         = require('fs-extra');
 var fs          = require('fs');
 var node_path   = require('path');
-var readPkgJSON = require('read-package-json');
+var read        = require('./lib/read');
 var async       = require('async');
 var cleaner     = require('./lib/cleaner');
 var lang        = require('./lib/lang');
@@ -190,7 +190,7 @@ exports._read_json = function(file, callback) {
 
 
 exports._enhance_package_file = function(file, callback) {
-  readPkgJSON(file, callback);
+  read(file, callback);
 };
 
 

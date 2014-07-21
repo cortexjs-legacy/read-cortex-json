@@ -1,6 +1,6 @@
 {
   "name": "read-cortex-json",
-  "version": "3.3.13",
+  "version": "3.3.14",
   "description": "The thing cortex uses to read cortex.json files or fallback to read cortex configurations from package.json",
   "main": "index.js",
   "scripts": {
@@ -41,7 +41,10 @@
     "async": "^0.8.0",
     "fs-expand": "^0.2.0",
     "fs-extra": "^0.8.1",
+    "glob": "^4.0.4",
+    "graceful-fs": "^3.0.2",
+    "lru-cache": "^2.5.0",
     "mkdirp": "^0.5.0",
-    "read-package-json": "^1.1.9"
+    "normalize-package-data": "^0.4.1"
   }
 }
