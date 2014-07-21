@@ -474,3 +474,30 @@ describe("#17", function(){
     });
   });
 });
+
+
+describe("#22", function(){
+  it("normalize entries", function(done){
+    var p = packages('simplest');
+    p.copy(function (err, dir) {
+      var cortex_json = node_path.join(dir, 'cortex.json');
+      var json = fs.readJSON(cortex_json);
+      json.entries = ['abc.js'];
+      delete json.main;
+      var index = node_path.join(dir, 'index.js');
+      fs.remove(index);
+      fs.write(cortex_json, JSON.stringify(json, null, 2));
+
+      var name_js = node_path.join(dir, 'abc.js');
+      fs.write(name_js, '');
+      
+      helper.enhanced(dir, function (err, pkg) {
+        expect(err).to.equal(null);
+        expect(pkg.entries).to.deep.equal([
+          './abc.js'
+        ]);
+        done();
+      });
+    });
+  });
+});
