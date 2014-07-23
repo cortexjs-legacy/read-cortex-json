@@ -52,7 +52,7 @@ exports._get_package_file = function(cwd, callback, strict) {
       if (strict) {
         return callback({
           code: 'PKG_NOT_FOUND',
-          message: 'Both cortex.json and package.json are not found.',
+          message: 'Both cortex.json and package.json are not found around "' + cwd + '"',
           data: {
             cwd: cwd
           }
@@ -102,16 +102,28 @@ exports.enhanced = function(cwd, callback) {
       return callback(err);
     }
 
+    function cb (err, pkg) {
+      if (err) {
+        return callback({
+          code: err.code,
+          message: err.message + '\nFile: "' + file + '"',
+          stack: err.stack,
+          data: err.data
+        });
+      }
+      callback(null, pkg);
+    }
+
     exports._enhance_package_file(file, function (err, json) {
       if (err) {
-        return callback(err);
+        return cb(err);
       }
       // if read from package.json, there is a field named `cortex`
       if (!exports._is_cortex_json(file)) {
         json = exports._merge_package_json(json);
       }
 
-      cleaner.clean(cwd, json, callback);
+      cleaner.clean(cwd, json, cb);
     });
   }, true);
 };
