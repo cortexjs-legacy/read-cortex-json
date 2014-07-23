@@ -501,3 +501,27 @@ describe("#22", function(){
     });
   });
 });
+
+
+describe("#24", function(){
+  it("should not cache the result", function(done){
+    var p = packages('simplest');
+    p.copy(function (err, dir) {
+      expect(err).to.equal(null);
+      helper.enhanced(dir, function (err, origin_pkg) {
+        expect(err).to.equal(null);
+        // Then, change the file
+        var cortex_json = node_path.join(dir, 'cortex.json');
+        var json = fs.readJSON(cortex_json);
+        json.name = 'blah-blah';
+        fs.write(cortex_json, JSON.stringify(json, null, 2));
+
+        helper.enhanced(dir, function (err, pkg) {
+          expect(err).to.equal(null);
+          expect(pkg.name).to.equal('blah-blah');
+          done();
+        });
+      });
+    });
+  });
+});

@@ -13,6 +13,7 @@ var util        = require('util');
 
 var REGEX_IS_CORTEX = /cortex\.json$/i;
 
+
 // Cleans the cortex.json for legacy
 exports.clean = function (cwd, json, callback) {
   // Before cortexjs/read-cortex-json#11,
