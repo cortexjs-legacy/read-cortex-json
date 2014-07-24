@@ -229,21 +229,6 @@ describe("cleaner", function(){
     });
   });
 
-  it("cleaner.check_dirs(): should throw if dir not found", function(done){
-    var p = packages('dir-not-found');
-    p.copy(function (err, dir) {
-      expect(err).to.equal(null);
-      helper.read(dir, function (err, json) {
-        expect(err).to.equal(null);
-        cleaner.check_dirs(dir, json, function (err) {
-          expect(err).not.to.equal(null);
-          expect(err.code).to.equal('DIR_NOT_FOUND');
-          done();
-        });
-      });
-    });
-  });
-
   it("if a package has nothing, it will fail", function(done){
     var p = packages('dir-not-found');
     p.copy(function (err, dir) {
