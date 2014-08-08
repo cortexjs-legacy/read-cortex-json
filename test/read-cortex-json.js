@@ -648,3 +648,56 @@ describe("#24", function(){
     });
   });
 });
+
+
+describe("#28: 3.5.0, file", function(){
+  ['read', 'enhanced', 'extra'].forEach(function (type) {
+    it(type + "(): if not found", function(done){
+      temp.dir(function (err, path) {
+        expect(err).to.equal(null);
+        helper[type](path, function (err, pkg, file) {
+          expect(!!file).to.equal(false);
+          done();
+        });
+      });
+    });
+
+    it(type + "(): cortex.json", function(done){
+      temp.dir(function (err, path) {
+        expect(err).to.equal(null);
+        var f = node_path.join(path, 'cortex.json');
+        fs.write(f, '');
+        helper[type](path, function (err, pkg, file) {
+          expect(file).to.equal(f);
+          done();
+        });
+      });
+    });
+
+    it(type + "(): package.json", function(done){
+      temp.dir(function (err, path) {
+        expect(err).to.equal(null);
+        var f = node_path.join(path, 'package.json');
+        fs.write(f, '');
+        helper[type](path, function (err, pkg, file) {
+          expect(file).to.equal(f);
+          done();
+        });
+      });
+    });
+
+    it(type + "(): both package.json and cortex.json", function(done){
+      temp.dir(function (err, path) {
+        expect(err).to.equal(null);
+        var f = node_path.join(path, 'cortex.json');
+        var p = node_path.join(path, 'package.json');
+        fs.write(f, '');
+        fs.write(p, '');
+        helper[type](path, function (err, pkg, file) {
+          expect(file).to.equal(f);
+          done();
+        });
+      });
+    });
+  });
+});
