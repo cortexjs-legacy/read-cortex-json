@@ -89,13 +89,23 @@ exports.read = function(cwd, callback, use_inherits) {
 };
 
 
-// Get the enhanced and cooked json object of package, including
+exports.extra = function (cwd, callback) {
+  exports._extra(cwd, callback);
+};
+
+
+// This method will also clean the data
+// @param {string} cwd The ROOT directory of the current package 
+exports.enhanced = function(cwd, callback) {
+  exports._extra(cwd, callback, true);
+};
+
+
+// Get the cooked json object of package, including
 // - readme
 // - readmeFilename
 // - gitHead
-// This method is often used for publishing
-// @param {string} cwd The ROOT directory of the current package 
-exports.enhanced = function(cwd, callback) {
+exports._extra = function (cwd, callback, clean) {
   var file;
   exports._get_package_file(cwd, function (err, file) {
     if (err) {
@@ -123,7 +133,11 @@ exports.enhanced = function(cwd, callback) {
         json = exports._merge_package_json(json);
       }
 
-      cleaner.clean(cwd, json, cb);
+      if (clean) {
+        cleaner.clean(cwd, json, cb);
+      } else {
+        cb(null, json);
+      }
     });
   }, true);
 };

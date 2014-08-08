@@ -36,18 +36,13 @@ cortexJson.read('/path/to/your/repo', function(err, json){
 });
 ```
 
-### cortexJson.enhanced(cwd, callback)
+### cortexJson.extra(cwd, callback)
 
 This method is different from `cortexJson.read()` that it will validate some stuff and flavors the object with some default values which cortex registry needs.
 
-- `cortex.main` will be `require.resolve()`d. That is, if there is a `index.js`, but `cortex.main` is `'index'`, and after `enhanced()`, `cortex.main` will be `'index.js'`.
-- `cortex.css` and `cortex.entries` will always be an **globbed** array(even an empty array) after `enhanced()`
-- If a path, either from `main`, `css`, or `entries`, is explicitly defined but not found, an error will throw.
-- If a package has neither `main`, `css`, nor `entries`, an `'CORTEX_NO_ENTRY'` error will throw.
-
 ### cortexJson.clean(cwd, json, callback)
 
-Cleans the `json` for legacy.
+Cleans and validate the `json`.
 
 This method will check the `json` object first. If it is an old object, `cortexJson.clean` will santitize it.
 
@@ -55,9 +50,17 @@ After `cortexJson.clean()` and `cortexJson.enhanced()`, there are always
 
 - `main`, if no main entry found, it will be `false`
 - `css`, if no csses found, it will be `[]`
-- `entries`, if no entries found, it will be `[]`
+- `entries`, if no entries found, it will be `[]`.
+- `cortex.main` will be `require.resolve()`d. That is, if there is a `index.js`, but `cortex.main` is `'index'`, and after `enhanced()`, `cortex.main` will be `'index.js'`.
+- `cortex.css` and `cortex.entries` will always be an **globbed** array(even an empty array) after `enhanced()`
+- If a path, either from `main`, `css`, or `entries`, is explicitly defined but not found, an error will throw.
+- If a package has neither `main`, `css`, nor `entries`, an `'CORTEX_NO_ENTRY'` error will throw.
 
 in the `json` data.
+
+### cortexJson.enhance(cwd, callback)
+
+It is a `cortexJson.extra()` then `cortexJson.clean()`
 
 ### cortexJson.save(cwd, json, callback)
 
