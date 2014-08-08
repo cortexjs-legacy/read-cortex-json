@@ -78,7 +78,9 @@ exports.read = function(cwd, callback, use_inherits) {
       done(null, json);
     }
 
-  ], callback);
+  ], function (err, json) {
+    callback(err, json, file);
+  });
 };
 
 
@@ -112,9 +114,9 @@ exports._extra = function (cwd, callback, clean) {
           message: err.message + '\nFile: "' + file + '"',
           stack: err.stack,
           data: err.data
-        });
+        }, null, file);
       }
-      callback(null, pkg);
+      callback(null, pkg, file);
     }
 
     exports._enhance_package_file(file, function (err, json) {
