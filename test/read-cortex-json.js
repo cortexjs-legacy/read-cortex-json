@@ -237,10 +237,24 @@ describe("cleaner", function(){
       fs.write(cortex_json, JSON.stringify({name: 'a', version: '1.1.0'}));
       var index = node_path.join(dir, 'index.js');
       fs.remove(index);
+
+      function cb () {
+        counter --;
+        if (!counter) {
+          done();
+        }
+      }
+
+      var counter = 2;
       helper.enhanced(dir, function (err, json) {
         expect(err).not.to.equal(null);
         expect(err.code).to.equal('CORTEX_NO_ENTRY');
-        done();
+        cb();
+      });
+
+      helper.extra(dir, function (err, json) {
+        expect(err).to.equal(null);
+        cb();
       });
     });
   });
@@ -256,10 +270,24 @@ describe("cleaner", function(){
       fs.write(node_path.join(dir, 'style.css'), '');
       var index = node_path.join(dir, 'index.js');
       fs.remove(index);
+
+      function cb () {
+        counter --;
+        if (!counter) {
+          done();
+        }
+      }
+
+      var counter = 2;
       helper.enhanced(dir, function (err, pkg) {
         expect('main' in pkg).to.equal(true);
         expect(pkg.main).to.equal(false);
-        done();
+        cb();
+      });
+
+      helper.extra(dir, function (err, pkg) {
+        expect('main' in pkg).to.equal(false);
+        cb();
       });
     });
   });
@@ -267,9 +295,22 @@ describe("cleaner", function(){
   it("`pkg.css` should always be an array", function(done){
     var p = packages('simplest');
     p.copy(function (err, dir) {
+      function cb () {
+        counter --;
+        if (!counter) {
+          done();
+        }
+      }
+
+      var counter = 2;
       helper.enhanced(dir, function (err, pkg) {
         expect(util.isArray(pkg.css)).to.equal(true);
-        done();
+        cb();
+      });
+
+      helper.extra(dir, function (err, pkg) {
+        expect(util.isArray(pkg.css)).to.equal(false);
+        cb();
       });
     });
   });
@@ -277,9 +318,22 @@ describe("cleaner", function(){
   it("`pkg.entries` should always be an array", function(done){
     var p = packages('simplest');
     p.copy(function (err, dir) {
+      function cb () {
+        counter --;
+        if (!counter) {
+          done();
+        }
+      }
+
+      var counter = 2;
       helper.enhanced(dir, function (err, pkg) {
         expect(util.isArray(pkg.entries)).to.equal(true);
-        done();
+        cb();
+      });
+
+      helper.extra(dir, function (err, pkg) {
+        expect(util.isArray(pkg.entries)).to.equal(false);
+        cb();
       });
     });
   });
@@ -309,9 +363,22 @@ describe("#8", function(){
   it("pkg.css should always be an array after enhanced", function(done){
     var p = packages('simplest');
     p.copy(function (err, dir) {
+      function cb () {
+        counter --;
+        if (!counter) {
+          done();
+        }
+      }
+
+      var counter = 2;
       helper.enhanced(dir, function (err, pkg) {
         expect(util.isArray(pkg.css)).to.equal(true);
-        done();
+        cb();
+      });
+
+      helper.extra(dir, function (err, pkg) {
+        expect(util.isArray(pkg.css)).to.equal(false);
+        cb();
       });
     });
   });
@@ -323,9 +390,23 @@ describe("#10", function(){
     p.copy(function (err, dir) {
       var main = node_path.join(dir, 'index.js');
       fs.remove(main);
+
+      function cb () {
+        counter --;
+        if (!counter) {
+          done();
+        }
+      }
+
+      var counter = 2;
       helper.enhanced(dir, function (err, pkg) {
         expect(err.code).to.equal('CORTEX_MAIN_NOT_FOUND');
-        done();
+        cb();
+      });
+
+      helper.extra(dir, function (err, pkg) {
+        expect(err).to.equal(null);
+        cb();
       });
     });
   });
@@ -342,10 +423,25 @@ describe("#10", function(){
         fs.write(name_js_file, '');
         var cortex_json = node_path.join(dir, 'cortex.json');
         fs.write(cortex_json, JSON.stringify(pkg, null, 2));
+
+        function cb () {
+          counter --;
+          if (!counter) {
+            done();
+          }
+        }
+
+        var counter = 2;
         helper.enhanced(dir, function (err, pkg) {
           expect(err).to.equal(null);
           expect(pkg.main).to.equal('./' + name_js);
-          done();
+          cb();
+        });
+
+        helper.extra(dir, function (err, pkg) {
+          expect(err).to.equal(null);
+          expect(pkg.main).not.to.equal('./' + name_js);
+          cb();
         });
       });
     });
@@ -368,10 +464,23 @@ describe("#16", function(){
       var name_js = node_path.join(dir, 'simplest.js');
       fs.write(name_js, '');
       
+      function cb () {
+        counter --;
+        if (!counter) {
+          done();
+        }
+      }
+
+      var counter = 2;
       helper.enhanced(dir, function (err, pkg) {
         expect(err).not.to.equal(null);
         expect(err.code).to.equal('CORTEX_MAIN_CONFLICT');
-        done();
+        cb();
+      });
+
+      helper.extra(dir, function (err, pkg) {
+        expect(err).to.equal(null);
+        cb();
       });
     });
   });
@@ -392,11 +501,24 @@ describe("#15", function(){
       
       var node = node_path.join(dir, 'index.node');
       fs.write(node, '');
-      
+
+      function cb () {
+        counter --;
+        if (!counter) {
+          done();
+        }
+      }
+
+      var counter = 2;
       helper.enhanced(dir, function (err, pkg) {
         expect(err).not.to.equal(null);
         expect(err.code).to.equal('CORTEX_MAIN_NOT_FOUND');
-        done();
+        cb();
+      });
+
+      helper.extra(dir, function (err, pkg) {
+        expect(err).to.equal(null);
+        cb();
       });
     });
   });
@@ -475,13 +597,29 @@ describe("#22", function(){
 
       var name_js = node_path.join(dir, 'abc.js');
       fs.write(name_js, '');
-      
+
+      function cb () {
+        counter --;
+        if (!counter) {
+          done();
+        }
+      }
+
+      var counter = 2;
       helper.enhanced(dir, function (err, pkg) {
         expect(err).to.equal(null);
         expect(pkg.entries).to.deep.equal([
           './abc.js'
         ]);
-        done();
+        cb();
+      });
+
+      helper.extra(dir, function (err, pkg) {
+        expect(err).to.equal(null);
+        expect(pkg.entries).not.to.deep.equal([
+          './abc.js'
+        ]);
+        cb();
       });
     });
   });
