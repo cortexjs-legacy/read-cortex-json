@@ -8,8 +8,9 @@ var node_path   = require('path');
 var read        = require('./lib/read');
 var async       = require('async');
 var cleaner     = require('./lib/cleaner');
-var lang        = require('./lib/lang');
 var util        = require('util');
+var mix         = require('mix2');
+var comment_json = require('comment-json');
 
 var REGEX_IS_CORTEX = /cortex\.json$/i;
 
@@ -195,7 +196,7 @@ exports._save_to_file = function(file, json, callback) {
 
 
 exports._read_json = function(file, callback) {
-  fse.readJson(file, function (err, pkg) {
+  function cb (err, pkg) {
     if (err) {
       return callback({
         code: 'ERROR_READ_JSON',
@@ -207,6 +208,21 @@ exports._read_json = function(file, callback) {
     }
 
     callback(null, pkg);
+  }
+
+  fs.readFile(file, function (err, content) {
+    if (err) {
+      return cb(err);
+    }
+
+    var pkg;
+    try {
+      pkg = comment_json.parse(content.toString());
+    } catch(e) {
+      return cb(e);
+    }
+
+    cb(null, pkg);
   });
 };
 
@@ -226,7 +242,7 @@ exports._merge_package_json = function(pkg, use_inherits) {
     F.prototype = pkg;
 
     var cortex = new F;
-    lang.mix(cortex, pkg.cortex || {});
+    mix(cortex, pkg.cortex || {});
     delete pkg.cortex;
 
     exports._filter_package_fields(cortex);
@@ -235,7 +251,7 @@ exports._merge_package_json = function(pkg, use_inherits) {
     cortex = pkg.cortex || {};
     exports._filter_package_fields(cortex);
 
-    lang.mix(cortex, pkg, false);
+    mix(cortex, pkg, false);
     delete cortex.cortex;
   }
 
