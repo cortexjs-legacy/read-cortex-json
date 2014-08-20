@@ -182,7 +182,7 @@ exports.save = function(cwd, json, callback) {
 
 
 exports._save_to_file = function(file, json, callback) {
-  fs.writeFile(file, JSON.stringify(json, null, 2), function(err) {
+  fs.writeFile(file, comment_json.stringify(json, null, 2), function(err) {
     callback(err && {
       code: 'ERROR_SAVE_PKG',
       message: 'fail to save package to "' + file + '", error: ' + err.stack,
