@@ -1,6 +1,6 @@
 {
   "name": "read-cortex-json",
-  "version": "3.5.1",
+  "version": "3.6.0",
   "description": "The thing cortex uses to read cortex.json files or fallback to read cortex configurations from package.json",
   "main": "index.js",
   "scripts": {
