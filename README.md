@@ -44,7 +44,7 @@ This method is different from `cortexJson.read()` that it will validate some stu
 
 Cleans and validate the `json`.
 
-This method will check the `json` object first. If it is an old object, `cortexJson.clean` will santitize it.
+This method will check the `json` object first. If it is an old object, `cortexJson.clean` will sanitize it.
 
 After `cortexJson.clean()` and `cortexJson.enhanced()`, there are always 
 
