@@ -112,6 +112,18 @@ describe("helper.read(cwd)", function() {
 });
 
 
+describe("helper.extra(cwd)", function() {
+  it("will use options.file if provided", function(done) {
+    var dir = make(['mycortex.json']);
+
+    helper.extra(dir, {file: node_path.join(dir, 'mycortex.json')}, function(err, helper) {
+      expect(helper.name).to.equal('myfoo');
+      done();
+    });
+  });
+});
+
+
 describe("helper.save(cwd, json)", function() {
   var new_version = '10.3.4';
 
