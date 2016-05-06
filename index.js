@@ -85,7 +85,17 @@ exports.read = function(cwd, callback, use_inherits) {
 };
 
 
-exports.extra = function (cwd, callback) {
+exports.extra = function (cwd, options, callback) {
+  if (typeof options === 'function') {
+    callback = options;
+    options = {};
+  }
+
+  if (options.file) {
+    // just read this file as `cortex.json`
+    read(options.file, callback);
+    return;
+  }
   exports._extra(cwd, callback);
 };
 
